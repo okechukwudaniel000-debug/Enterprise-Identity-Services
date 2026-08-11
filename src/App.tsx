@@ -9,6 +9,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { GoogleTasksWidget } from './components/GoogleTasksWidget';
 
 function HealthWidget() {
   const [healthData, setHealthData] = useState<{
@@ -110,7 +111,7 @@ export default function App() {
           </div>
         </header>
 
-        <main className="grid grid-cols-12 grid-rows-8 gap-4">
+        <main className="grid grid-cols-12 grid-rows-12 gap-4">
           <section className="col-span-5 row-span-3 bg-[#141417] border border-white/5 rounded-2xl p-6 flex flex-col justify-between">
             <div className="flex justify-between items-start">
               <span className="text-[10px] font-bold uppercase tracking-widest text-blue-500">Architecture</span>
@@ -231,6 +232,7 @@ export default function App() {
           </section>
 
           <HealthWidget />
+          <GoogleTasksWidget />
         </main>
       </div>
     </div>
