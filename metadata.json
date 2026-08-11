@@ -1,0 +1,8 @@
+{
+  "name": "Enterprise Identity Service",
+  "description": "Secure Authentication. Scalable Authorization. Production Ready. A complete enterprise-grade backend identity platform with RBAC, JWT rotation, and full security observability.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
