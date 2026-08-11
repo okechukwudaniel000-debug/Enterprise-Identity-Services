@@ -8,6 +8,86 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { useState, useEffect } from 'react';
+
+function HealthWidget() {
+  const [healthData, setHealthData] = useState<{
+    uptime: number;
+    memory: {
+      rss: number;
+      heapTotal: number;
+      heapUsed: number;
+    };
+    database: string;
+    timestamp: string;
+  } | null>(null);
+
+  useEffect(() => {
+    const fetchHealth = async () => {
+      try {
+        const res = await fetch('/api/v1/health');
+        const json = await res.json();
+        if (json.success) {
+          setHealthData(json.data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch health data', err);
+      }
+    };
+    fetchHealth();
+    const interval = setInterval(fetchHealth, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (!healthData) {
+    return (
+      <section className="col-span-4 row-span-2 bg-[#141417] border border-white/5 rounded-2xl p-6 flex flex-col justify-center items-center">
+        <span className="text-gray-500 font-mono text-xs animate-pulse">Loading System Health...</span>
+      </section>
+    );
+  }
+
+  const formatUptime = (seconds: number) => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${hrs}h ${mins}m ${secs}s`;
+  };
+
+  const formatMemory = (bytes: number) => {
+    return (bytes / 1024 / 1024).toFixed(2) + ' MB';
+  };
+
+  return (
+    <section className="col-span-4 row-span-2 bg-[#141417] border border-white/5 rounded-2xl p-6 flex flex-col justify-between shadow-xl shadow-teal-900/10 relative overflow-hidden">
+      <div className="absolute top-0 right-0 p-4 opacity-5">
+        <div className="w-24 h-24 border border-teal-500 rounded-full animate-ping" style={{ animationDuration: '3s' }}></div>
+      </div>
+      <div className="flex justify-between items-start relative z-10">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-teal-500">Live Health Check</span>
+        <div className={`w-2 h-2 rounded-full ${healthData.database === 'Connected' ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
+      </div>
+      
+      <div className="mt-4 space-y-3 relative z-10">
+        <div className="flex justify-between items-center border-b border-white/5 pb-2">
+          <span className="text-xs text-gray-400 font-mono">Uptime</span>
+          <span className="text-xs font-mono text-white">{formatUptime(healthData.uptime)}</span>
+        </div>
+        
+        <div className="flex justify-between items-center border-b border-white/5 pb-2">
+          <span className="text-xs text-gray-400 font-mono">Mem (RSS)</span>
+          <span className="text-xs font-mono text-white">{formatMemory(healthData.memory.rss)}</span>
+        </div>
+        
+        <div className="flex justify-between items-center">
+          <span className="text-xs text-gray-400 font-mono">Database</span>
+          <span className="text-xs font-mono text-teal-400">{healthData.database}</span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function App() {
   return (
     <div className="min-h-screen bg-[#0A0A0C] text-white p-8 font-sans">
@@ -30,7 +110,7 @@ export default function App() {
           </div>
         </header>
 
-        <main className="grid grid-cols-12 grid-rows-6 gap-4">
+        <main className="grid grid-cols-12 grid-rows-8 gap-4">
           <section className="col-span-5 row-span-3 bg-[#141417] border border-white/5 rounded-2xl p-6 flex flex-col justify-between">
             <div className="flex justify-between items-start">
               <span className="text-[10px] font-bold uppercase tracking-widest text-blue-500">Architecture</span>
@@ -149,6 +229,8 @@ export default function App() {
               <span className="text-[10px] font-bold">CI/CD READY</span>
             </div>
           </section>
+
+          <HealthWidget />
         </main>
       </div>
     </div>

@@ -47,6 +47,23 @@ async function startServer() {
     res.json({ success: true, data: req.user });
   });
 
+  app.get("/api/v1/health", (req, res) => {
+    const memUsage = process.memoryUsage();
+    res.json({
+      success: true,
+      data: {
+        uptime: process.uptime(),
+        memory: {
+          rss: memUsage.rss,
+          heapTotal: memUsage.heapTotal,
+          heapUsed: memUsage.heapUsed,
+        },
+        database: "Connected",
+        timestamp: new Date().toISOString(),
+      },
+    });
+  });
+
   // Error handling (must be last)
   app.use(errorHandler);
 
